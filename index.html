@@ -76,29 +76,70 @@ background-color: red;
   const listElement = document.getElementById("list");
   const nameInputElement = document.getElementById("name-input");
   const commentInputElement = document.getElementById("comment-input");
-  
 
+ let comments = []
   
- const comments = [
- {
-  name: 'Глеб Фокин',
-  date: '12.02.22 12:18',
-  comment: 'Это будет первый комментарий на этой странице',
-  likes: 3,
-  dislikes: false,
+//  let comments = [
+//  {
+//   name: 'Глеб Фокин',
+//   date: '12.02.22 12:18',
+//   comment: 'Это будет первый комментарий на этой странице',
+//   likes: 3,
+//   dislikes: false,
  
- },
+//  },
  
- {
-  name: 'Варвара Н.',
-  date: '13.02.22 19:22',
-  comment: 'Мне нравится как оформлена эта страница! ❤',
-  likes: 75,
-  dislikes: true,
+//  {
+//   name: 'Варвара Н.',
+//   date: '13.02.22 19:22',
+//   comment: 'Мне нравится как оформлена эта страница! ❤',
+//   likes: 75,
+//   dislikes: true,
   
- }
+//  }
 
- ];
+//  ];
+
+//  const jsonComments = JSON.stringify(comments);
+// //  console.log(jsonComments);
+
+//  const commentsFromJson = JSON.parse(jsonComments);
+// //  console.log(commentsFromJson);
+
+const getComments = () => {
+
+ const fetchPromise = fetch(
+    'https://webdev-hw-api.vercel.app/api/v1/vladimir-ulashenko/comments',
+    {
+      method:'GET',
+    }
+
+  );
+
+  fetchPromise.then((response) => {
+  const jsonPromise = response.json();
+  jsonPromise.then((responseData) => {
+  //  console.log(responseData);
+  const appComments = responseData.comments.map((comment) => {
+   return {
+    name: comment.author.name,
+    date: new Date(comment.date),
+    text: comment.text,
+    likes: comment.likes,
+    isLiked: false,
+   };
+
+  });
+   comments = appComments;
+   renderComments();
+      
+  });
+
+  });
+
+};
+getComments();
+
 
  const animateLikesButtons = () => {
  
@@ -107,14 +148,15 @@ background-color: red;
  for (let i = 0; i < likesButtonsElements.length; i++ ) {
   likesButtonsElements[i].addEventListener ('click' , (event) => {
     event.stopPropagation();
-  if (comments[i].dislikes === false) {
-     comments[i].dislikes = true;
+     if (comments[i].isLiked === false) {
+     comments[i].isLiked = true;
      comments[i].likes += 1;
-  } else if (comments[i].dislikes === true) {
-    comments[i].dislikes = false;
+  } else if (comments[i].isLiked === true) {
+    comments[i].isLiked = false;
     comments[i].likes -= 1;
   }
    renderComments();
+   
   });
 
  }
@@ -125,7 +167,7 @@ background-color: red;
  const renderComments = () => {
       const commentsHtml = comments
         .map((comment, index) => {
-          const text = comment.comment.replaceAll('\n', '<br />');
+          const text = comment.comment;
           return `
           <li class="comment" data-index="${index}">
             <div class="comment-header">
@@ -134,13 +176,13 @@ background-color: red;
             </div>
             <div class="comment-body">
               <div class="comment-text">
-                <pre>${text}</pre>
+              ${comment.text}
               </div>
             </div>
             <div class="comment-footer">
               <div class="likes">
                 <span class="likes-counter">${comment.likes}</span>
-                <button class="${comment.dislikes ? 'like-button -active-like' : 'like-button'}"></button>
+                <button class="${comment.isLiked ? 'like-button -active-like' : 'like-button'}"></button>
               </div>
             </div>
           </li>
@@ -149,19 +191,23 @@ background-color: red;
         .join('');
       listElement.innerHTML = commentsHtml;
       animateLikesButtons();
+      getAnswer();
       };
  renderComments();
-
+ 
+ function getAnswer () {
  const commentElements = document.querySelectorAll('.comment');
       for (let i = 0; i < commentElements.length; i++) {
         commentElements[i].addEventListener('click', (event) => {
           const index = event.currentTarget.dataset.index;
           const comment = comments[index];
           // nameInputElement.value = comment.name;
-          commentInputElement.value =`>${comment.comment}\n${comment.name}\n`;
+          commentInputElement.value =`>${comment.text}\n${comment.name}\n`;
         });
       };
-            
+ };
+ 
+
  
     buttonElement.addEventListener('click',() => {
     nameInputElement.classList.remove('error');
@@ -192,27 +238,41 @@ background-color: red;
 
       let resultDate = date.getDate() + '.' + month + '.' + year + ' ' + date.getHours() + ':' + minute;
 
-      comments.push({
-    name: nameInputElement.value
-          .replaceAll("&", "&amp;")
-          .replaceAll("<", "&lt;")
-          .replaceAll(">", "&gt;")
-          .replaceAll('"', "&quot;"),
-    date: `${resultDate}`,
-    comment: commentInputElement.value
-          .replaceAll("&", "&amp;")
-          .replaceAll("<", "&lt;")
-          .replaceAll(">", "&gt;")
-          .replaceAll('"', "&quot;"),
-    likes: 0,
-    dislikes: false,
-      });
+    // comments.push({
+    // name: nameInputElement.value
+    //       .replaceAll("&", "&amp;")
+    //       .replaceAll("<", "&lt;")
+    //       .replaceAll(">", "&gt;")
+    //       .replaceAll('"', "&quot;"),
+    // date: `${resultDate}`,
+    // comment: commentInputElement.value
+    //       .replaceAll("&", "&amp;")
+    //       .replaceAll("<", "&lt;")
+    //       .replaceAll(">", "&gt;")
+    //       .replaceAll('"', "&quot;"),
+          
+    // likes: 0,
+    // isLiked: false,
+    //   });
 
+     fetch(
+    'https://webdev-hw-api.vercel.app/api/v1/vladimir-ulashenko/comments',{
+      method: 'POST',
+      body: JSON.stringify({
+        text: commentInputElement.value, 
+        name: nameInputElement.value,
       
-        animateLikesButtons();
-        renderComments();
-  
+    }),      
+    }).then((response) => {
+   response.json().then((responseData) => {
+  //  console.log(responseData);
+    getComments();   
+  });
+    
+  });
 
+     
+     
       nameInputElement.value = ''; 
       commentInputElement.value = '';
 
