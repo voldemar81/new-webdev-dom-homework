@@ -280,6 +280,7 @@ const getComments = () => {
     'https://webdev-hw-api.vercel.app/api/v1/vladimir-ulashenko/comments',{
       method: 'POST',
       body: JSON.stringify({
+        forceError: true,
         text: commentInputElement.value
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
@@ -290,11 +291,22 @@ const getComments = () => {
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;"),
+        
       
     }),      
     })
     .then((response) => {
-   return response.json()
+    //  console.log(response);
+     if(response.status === 201) {
+     return response.json();
+     } 
+     if(response.status === 500) {
+     return Promise.reject(500);
+     }
+     if(response.status === 400) {
+     return Promise.reject(400);
+     }
+          
     })
     .then((responseData) => {
       getComments();
@@ -304,13 +316,31 @@ const getComments = () => {
     loadingText.textContent = '';
     addForm.classList.remove('none');
     addForm.classList.add('add-form');
+    nameInputElement.value = ''; 
+    commentInputElement.value = '';
+    })
+    .catch((error) => {
+      console.log(error);
+      if(error === 500) {
+      alert('Сервер сломался, попробуй позже');
+      
+     }
+     if(error === 400) {
+      alert('Имя и комментарий должны быть не короче 3 символов');
+      
+     } else { 
+     
+    alert('Кажется, у вас сломался интернет, попробуйте позже');
+      
+     }
+            
+    addForm.classList.remove('none');
+    addForm.classList.add('add-form');
+      // console.warn(error);
     });
    
-         
      
-      nameInputElement.value = ''; 
-      commentInputElement.value = '';
-
+         
   });
 
   </script>
