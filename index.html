@@ -8,8 +8,9 @@
 
   <body>
     <div class="container">
+      <p class="text-load" id="start-message"></p>
       <ul class="comments" id="list">
-        <!-- <li class="comment"> // render from js
+               <!-- <li class="comment"> // render from js
           <div class="comment-header">
             <div>Глеб Фокин</div>
             <div>12.02.22 12:18</div>
@@ -44,7 +45,8 @@
           </div>
         </li> -->
       </ul>
-      <div class="add-form">
+      <p class="text-load" id="loading-message"></p>
+      <div class="add-form" id="add-form">
         <input
           type="text" id="name-input" 
           class="add-form-name"
@@ -66,8 +68,19 @@
   .error {
 background-color: red;
   }
-  pre {
-   white-space: pre-line;
+  .none {
+   display: none;
+  }
+  .block {
+    display: block;
+  }
+  .text-load {
+    color: #ffffff;
+    font-size: 16px;
+  }
+  .text-start {
+    color: #ffffff;
+    font-size: 16px;
   }
 </style>
   <script>
@@ -106,39 +119,40 @@ background-color: red;
 //  const commentsFromJson = JSON.parse(jsonComments);
 // //  console.log(commentsFromJson);
 
+const startMessage = document.getElementById('start-message')
+startMessage.textContent = 'Подождите комментарии загружаются . . . ';
+
 const getComments = () => {
 
- const fetchPromise = fetch(
+  return  fetch(
     'https://webdev-hw-api.vercel.app/api/v1/vladimir-ulashenko/comments',
     {
       method:'GET',
     }
 
-  );
-
-  fetchPromise.then((response) => {
-  const jsonPromise = response.json();
-  jsonPromise.then((responseData) => {
-  //  console.log(responseData);
+  )
+  .then((response) => {
+  return response.json();
+  })
+  .then((responseData) => {
+  // console.log(responseData);
   const appComments = responseData.comments.map((comment) => {
    return {
     name: comment.author.name,
-    date: new Date(comment.date),
+    date: new Date(comment.date).toLocaleString('ru'),
     text: comment.text,
     likes: comment.likes,
     isLiked: false,
    };
 
   });
-   comments = appComments;
-   renderComments();
-      
-  });
+  comments = appComments;
+  renderComments();
+  startMessage.textContent = '';
 
   });
-
+ 
 };
-getComments();
 
 
  const animateLikesButtons = () => {
@@ -165,7 +179,7 @@ getComments();
 
  
  const renderComments = () => {
-      const commentsHtml = comments
+        const commentsHtml = comments
         .map((comment, index) => {
           const text = comment.comment;
           return `
@@ -193,6 +207,7 @@ getComments();
       animateLikesButtons();
       getAnswer();
       };
+ getComments();
  renderComments();
  
  function getAnswer () {
@@ -222,21 +237,21 @@ getComments();
       return;
     }
 
-      let date = new Date();
-      let month = Number(date.getMonth() + 1);
-      let minute = date.getMinutes();
-      let year = String(date.getFullYear());
-      year = year.split('').splice(2, 3).join('');
+      // let date = new Date();
+      // let month = Number(date.getMonth() + 1);
+      // let minute = date.getMinutes();
+      // let year = String(date.getFullYear());
+      // year = year.split('').splice(2, 3).join('');
 
-      if (month < 10) {
-        month = "0" + month;
-      }
+      // if (month < 10) {
+      //   month = "0" + month;
+      // }
     
-      if (minute < 10) {
-        minute = "0" + minute;
-      }
+      // if (minute < 10) {
+      //   minute = "0" + minute;
+      // }
 
-      let resultDate = date.getDate() + '.' + month + '.' + year + ' ' + date.getHours() + ':' + minute;
+      // let resultDate = date.getDate() + '.' + month + '.' + year + ' ' + date.getHours() + ':' + minute;
 
     // comments.push({
     // name: nameInputElement.value
@@ -244,7 +259,7 @@ getComments();
     //       .replaceAll("<", "&lt;")
     //       .replaceAll(">", "&gt;")
     //       .replaceAll('"', "&quot;"),
-    // date: `${resultDate}`,
+    // date: new Date.toLocaleString('ru'),
     // comment: commentInputElement.value
     //       .replaceAll("&", "&amp;")
     //       .replaceAll("<", "&lt;")
@@ -255,23 +270,43 @@ getComments();
     // isLiked: false,
     //   });
 
+       
+    const loadingText = document.getElementById('loading-message');
+    const addForm = document.getElementById('add-form');
+    addForm.classList.add('none');
+    loadingText.textContent = 'Подождите ваш комментарий загружается . . . ';
+
      fetch(
     'https://webdev-hw-api.vercel.app/api/v1/vladimir-ulashenko/comments',{
       method: 'POST',
       body: JSON.stringify({
-        text: commentInputElement.value, 
-        name: nameInputElement.value,
+        text: commentInputElement.value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;"),
+        name: nameInputElement.value
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;"),
       
     }),      
-    }).then((response) => {
-   response.json().then((responseData) => {
+    })
+    .then((response) => {
+   return response.json()
+    })
+    .then((responseData) => {
+      getComments();
   //  console.log(responseData);
-    getComments();   
-  });
-    
-  });
-
-     
+   })
+  .then((data) => {
+    loadingText.textContent = '';
+    addForm.classList.remove('none');
+    addForm.classList.add('add-form');
+    });
+   
+         
      
       nameInputElement.value = ''; 
       commentInputElement.value = '';
