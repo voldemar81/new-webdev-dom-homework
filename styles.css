@@ -135,3 +135,21 @@ body {
   .add-form-button:hover {
     opacity: 0.9;
   }
+
+  .error {
+    background-color: red;
+      }
+      .none {
+       display: none;
+      }
+      .block {
+        display: block;
+      }
+      .text-load {
+        color: #ffffff;
+        font-size: 16px;
+      }
+      .text-start {
+        color: #ffffff;
+        font-size: 16px;
+      }
