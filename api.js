@@ -9,20 +9,23 @@ export let comments = []
 
 export const startMessage = document.getElementById('start-message')
 
-
-
+let token = "Bearer bgc0b8awbwas6g5g5k5o5s5w606g37w3cc3bo3b83k39s3co3c83c03ck";
+const host = 'https://wedev-api.sky.pro/api/v2/vladimir-ulashenko/comments';
+// 'https://webdev-hw-api.vercel.app/api/v1/vladimir-ulashenko/comments'
 
 export const getComments = () => {
 
-    return  fetch(
-      'https://webdev-hw-api.vercel.app/api/v1/vladimir-ulashenko/comments',
-      {
+    return  fetch( host,{
         method:'GET',
+        headers: {
+          Authorization: token ,
+
+        },
       }
   
     )
     .then((response) => {
-    return response.json();
+     return response.json();
     })
     .then((responseData) => {
      const appComments = responseData.comments.map((comment) => {
@@ -49,7 +52,7 @@ export const getComments = () => {
   export  const addForm = document.getElementById('add-form');
 
  export function fetchPost () { 
-    fetch('https://webdev-hw-api.vercel.app/api/v1/vladimir-ulashenko/comments',{
+    fetch(host,{
       method: 'POST',
       body: JSON.stringify({
         // forceError: true,
@@ -65,7 +68,11 @@ export const getComments = () => {
         .replaceAll('"', "&quot;"),
      
       
-    }),      
+    }),
+    headers: {
+      Authorization:  token ,
+
+    },   
     })
     .catch((error) =>{
     alert('Кажется, у вас сломался интернет, попробуйте позже');
@@ -80,7 +87,7 @@ export const getComments = () => {
      if(response.status === 400) {
      return Promise.reject(400);
      }
-          
+               
     })
     .then((responseData) => {
       getComments();
