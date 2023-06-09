@@ -7,32 +7,12 @@
   </head>
 
   <body>
-    <div class="container">
-      <p class="text-load" id="start-message"></p>
-      <ul class="comments" id="list">
-      <!-- render from js -->
-      </ul>
-      <p class="text-load" id="loading-message"></p>
-      <div class="add-form" id="add-form">
-        <input
-          type="text" id="name-input" 
-          class="add-form-name"
-          placeholder="Введите ваше имя"
-        />
-        <textarea
-          type="textarea" id="comment-input"
-          class="add-form-text"
-          placeholder="Введите ваш коментарий"
-          rows="4"
-        ></textarea>
-        <div class="add-form-row">
-          <button class="add-form-button" id="add-button">Написать</button>
-        </div>
-      </div>
+   <div class="container">
+      <div id="app"></div>
     </div>
   </body>
   <script type="module" src="./main.js"></script>
   <script type="module" src="./api.js"></script>
-  <script type="module" src="./render.js"></script>
+  <script type="module" src="./login-component.js"></script>
   
 </html>

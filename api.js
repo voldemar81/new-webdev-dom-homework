@@ -1,117 +1,70 @@
-import { renderComments } from "./render.js";
-
-export  const buttonElement = document.getElementById("add-button");
-export  const listElement = document.getElementById("list");
-export  const nameInputElement = document.getElementById("name-input");
-export  const commentInputElement = document.getElementById("comment-input");
-
-export let comments = []
-
-export const startMessage = document.getElementById('start-message')
-
-let token = "Bearer bgc0b8awbwas6g5g5k5o5s5w606g37w3cc3bo3b83k39s3co3c83c03ck";
 const host = 'https://wedev-api.sky.pro/api/v2/vladimir-ulashenko/comments';
-// 'https://webdev-hw-api.vercel.app/api/v1/vladimir-ulashenko/comments'
 
-export const getComments = () => {
+export  function getComments({token}) {
 
     return  fetch( host,{
         method:'GET',
         headers: {
           Authorization: token ,
-
         },
-      }
-  
-    )
-    .then((response) => {
+      })
+      .then((response) => {
+      if (response.status === 401) {
+        throw new Error("Нет авторизации");
+      } 
      return response.json();
-    })
-    .then((responseData) => {
-     const appComments = responseData.comments.map((comment) => {
-     return {
-      name: comment.author.name,
-      date: new Date(comment.date).toLocaleString('ru'),
-      text: comment.text,
-      likes: comment.likes,
-      isLiked: false,
-     };
-  
-    });
-    comments = appComments;
-    renderComments();
-    startMessage.textContent = '';
-  
     });
    
-  };
-
-  getComments();
-
-  export const loadingText = document.getElementById('loading-message');
-  export  const addForm = document.getElementById('add-form');
-
- export function fetchPost () { 
+  }
+  
+ export async function fetchPost ({ text, token }) { 
     fetch(host,{
       method: 'POST',
       body: JSON.stringify({
-        // forceError: true,
-        text: commentInputElement.value
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;"),
-        name: nameInputElement.value
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;"),
-     
-      
+        text,
     }),
     headers: {
       Authorization:  token ,
-
     },   
     })
-    .catch((error) =>{
-    alert('Кажется, у вас сломался интернет, попробуйте позже');
-    })
     .then((response) => {
-     if(response.status === 201) {
-     return response.json();
-     } 
-     if(response.status === 500) {
-     return Promise.reject(500);
-     }
-     if(response.status === 400) {
-     return Promise.reject(400);
-     }
-               
+      if (response.status === 400) {
+        throw new Error("Комментарий должен быть не короче 3 символов");
+      }
+      if (response.status === 500) {
+        throw new Error("Сервер сломался, попробуй позже");
+      }
+    return response.json();
     })
-    .then((responseData) => {
-      getComments();
-    })
-   .then((data) => {
-    addForm.classList.remove('none');
-    addForm.classList.add('add-form');
-    nameInputElement.value = ''; 
-    commentInputElement.value = '';
-    })
-    .catch((error) => {
-     if(error === 500) {
-      alert('Сервер сломался, попробуй позже');
-     }
-     if(error === 400) {
-      alert('Имя и комментарий должны быть не короче 3 символов');
-     } 
-    })
-    .then((data) => {
-      loadingText.textContent = '';
-    });
-   
-    addForm.classList.remove('none');
-    addForm.classList.add('add-form');
-
-  
 };
+
+export  function userAuthorization({ login, password }) {
+  return fetch("https://wedev-api.sky.pro/api/user/login", {
+    method: "POST",
+    body: JSON.stringify({
+      login,
+      password,
+    }),
+  }).then((response) => {
+    if(response.status === 400){
+        throw new Error('Неверный логин или пароль');
+    }
+    return response.json();
+  });
+}
+
+export  function userRegistration({ login, password, name }) {
+  return fetch("https://wedev-api.sky.pro/api/user", {
+    method: "POST",
+    body: JSON.stringify({
+      login,
+      password,
+      name,
+    }),
+  }).then((response) => {
+    if(response.status === 400){
+        throw new Error('Такой пользователь уже существует');
+    }
+    return response.json();
+  });
+}
