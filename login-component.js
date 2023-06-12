@@ -1,4 +1,4 @@
-import { userAuthorization,userRegistration } from "../api.js";
+import { userAuthorization,userRegistration } from "./api.js";
 export let name;
 
 export function renderLogin({ appEl, setToken, getExistingComments}) {
