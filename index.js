@@ -1,3 +1,6 @@
+
+import { format } from "date-fns";
+
 let token = null;
 let comments = [];
 let loadingComments = true;
@@ -13,7 +16,7 @@ const getExistingComments = () => {
       const appComments = responseData.comments.map((comment) => {
         return {
           name: comment.author.name,
-          date: new Date(comment.date).toLocaleString('ru'),
+          date: new Date(comment.date),
           text: comment.text,
           likes: comment.likes,
           isLiked: comment.isLiked,
@@ -47,10 +50,11 @@ const renderApp = (loadingComments) => {
 
   const commentsHTML = comments
     .map((comment, index) => {
+      const date = new Date(comment.date)
             return `<li class="comment" data-index='${index}'>
             <div class="comment-header">
               <div>${comment.name}</div>
-              <div>${comment.date}</div>
+              <div>${format(date, "yyyy-dd-MM hh:mm:ss")}</div>
             </div>
             <div class="comment-body">
               <div class="comment-text">
